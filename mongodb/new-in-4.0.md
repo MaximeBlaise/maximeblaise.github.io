@@ -134,3 +134,16 @@ db.address.aggregate( [
 - Aggregation pipeline builder
 - Import/Export data in JSON or CSV formats
 - Export query in Language : JavaScript, Java, Python and C#
+
+## Chapter 6: ODBC Driver for BI Connector
+
+### Windows - Installing ODBC Driver
+
+You can find a link to download ODBC Driver [here](https://github.com/mongodb/mongo-odbc-driver/releases/tag/v1.0.0)
+Just download needed file (x32 or x64), and install it by double-clicking in it.
+
+### Windows - Configuring DSN
+
+- Launch `ODBC datasource administrator`
+- Click `Add` and select `MongoDB ODBC 1.0 Unicode Driver`
+- Fill in connection parameters
