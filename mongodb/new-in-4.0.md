@@ -70,3 +70,67 @@
 - Cluster level changeStream : `db.getMongo().watch()`
 - startAtOperationTime Option : `db.A.watch({startAtOperationTime: t10 })`
 - Refined Change Event syntax that support transactions
+
+## Chapter 4: Aggregation Framework Improvements
+
+### Type Conversions
+
+```json
+{
+    "$convert": {
+        "input": <any-expression>,
+        "to": <type> | <expression evaluating to type>,
+        "onError": <any-expression> /* Optional */,
+        "onNull": <any-expression> /* Optional */
+    }
+}
+```
+
+Example of `$dateFromPart` :
+
+```js
+db.address.aggregate([
+  {
+    $addFields: {
+      next_visit: {
+          $convert:{
+            input: {
+              $dateFromParts: {
+                year: "$last_visited.year",
+                month: {$add:[15, "$last_visited.month"]},
+              }},
+            to: "date",
+            onNull: "",
+            onError: ""
+        }
+      }
+    }
+  }
+])
+```
+
+Example of `$trim` :
+
+```js
+db.address.aggregate( [
+ { $match: { building: {$type: "string"} }},
+ {
+   $addFields: {
+     building: {
+        $convert: {
+          input: {$trim: {input: "$building", chars: "w"}},
+          to: "int"
+        }
+      }
+    }
+ },
+ {$sort: {building: 1}}  ])
+```
+
+## Chapter 5: MongoDB Compass
+
+### Introduction to new Features
+
+- Aggregation pipeline builder
+- Import/Export data in JSON or CSV formats
+- Export query in Language : JavaScript, Java, Python and C#
