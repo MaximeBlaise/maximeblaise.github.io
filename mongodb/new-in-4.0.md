@@ -147,3 +147,45 @@ Just download needed file (x32 or x64), and install it by double-clicking in it.
 - Launch `ODBC datasource administrator`
 - Click `Add` and select `MongoDB ODBC 1.0 Unicode Driver`
 - Fill in connection parameters
+
+## Chapter 7: Atlas
+
+### Recent Features - Cloud Providers, Multi Regions
+
+- Support for the top 3 Cloud providers
+- Spreading a cluster across many regions
+- Upcoming feature Global Sharding for geographical access of documents
+
+- Activity Feed at the Organization level
+- Database level auditing (premium)
+- Using your private LDAP directory
+- Using your private KMS for encryption keys
+
+- Compliance with GDPR standards
+
+### Hosted BI Connector, Upgrading from Free Tier
+
+- Using the hosted BI connector in Atlas (premium)
+- Upgrading a cluster from Free Tier to larger paid instances
+- Using MongoDB 4.0 in Atlas
+
+### Cloud Provider Snapshot Backups
+
+### Real Time Panel, CRUD in Atlas UI
+
+- Real time performance panel : see slow operations and kill them directly
+- CRUD operations within the Atlas UI
+
+## SRV records, Data Migrator
+
+- Support for SRV records in connection strings
+- Command line tools
+- Data migrator to Atlas
+- Test failover
+- Cross project restores
+
+## Auto Scaling Storage, Performance Advisor
+
+- Auto scaling storage capacity
+- Performance advisor
+- Region migration
