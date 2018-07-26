@@ -189,3 +189,92 @@ Just download needed file (x32 or x64), and install it by double-clicking in it.
 - Auto scaling storage capacity
 - Performance advisor
 - Region migration
+
+## Chapter 8: MongoDB Upgrade and Downgrade
+
+### Downgrade
+
+Procedure for a Replica Set :
+
+- Remove any dependencies on 4.0 features that are not backwards compatible
+- Set *featureCompatibilityVersion* to `3.6`
+- Connect to one secondary node at a time, and :
+  - Shut down the secondary
+  - Start up secondary node using the 3.6 binary
+- When all secondaries are online, connect to the primary and:
+  - Step down the primary and wait for elections to complete
+  - Shut down the (now old) primary
+  - Start up the node using the 3.6 binary
+- Confirm all members are communicating successfully
+
+List mongod nodes:
+
+`ps -ef | grep mongod`
+
+Then, connect with mongo shell:
+
+```js
+rs.status() // Check replica set status
+db.adminCommand( { setFeatureCompatibilityVersion: "3.6" } ) // Set feature compatibility mode
+```
+
+Downgrade secondary nodes: (just replace .conf files)
+
+```bash
+sudo ln -s /opt/mongodb/mongodb-linux-x86_64-enterprise-ubuntu1404-3.6.5/bin/mongod /usr/bin/mongod3.6
+mongo admin --host 127.0.0.1:27027 --eval 'db.shutdowServer()'
+ps -ef | grep mongod
+mongod3.6 -f /shared/rs2_unix.conf
+# check status
+mongo admin --host 127.0.0.1:27027 --eval 'rs.slaveOk();rs.status()'
+ps -ef | grep mongod
+# the remaining secondary
+mongo admin --host 127.0.0.1:27037 --eval 'db.shutdowServer()'
+ps -ef | grep mongod
+mongod3.6 -f /shared/rs3_unix.conf
+ps -ef | grep mongod
+```
+
+Connect to primary node:
+
+```bash
+mongo admin --host 127.0.0.1:27017
+```
+
+Step down and shutdown server:
+
+```js
+use admin
+rs.stepDown()
+rs.status()
+db.shutdownServer()
+```
+
+Downgrade the old primary
+
+```bash
+mongod3.6 -f /shared/rs1_unix.conf
+mongo --host M040/m040:27017,m040:27027,m040:27037 --eval 'rs.status()'
+```
+
+### Upgrade to MongoDB 4.0
+
+Main considerations when Upgrading :
+
+- Compatibility changes
+  - Removed functionality in 4.0:
+    - Support for MONGODB-CR
+    - Support for Protocol Version 0 (PV0)
+    - Support for TLS 1.0
+    - Not using Journaling with WiredTiger
+    - Master-Slave Replication
+  - Significant change in behavior in 4.0 versus previous 3.6 release
+
+- Backward Incompatible Changes
+  - New or modified features of 4.0 that would not run with 3.6 or earlier
+    - Multi-document transactions
+    - Support for SCRAM-SHA-256
+    - Type conversion operators and enhancements
+    - `$dateToString` option changes
+
+To upgrade to 4.0, first upgrade to `MongoDB 3.6` first.
