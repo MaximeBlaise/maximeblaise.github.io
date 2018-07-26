@@ -2,6 +2,18 @@
 
 [Home](../README.md) > [MongoDB](./readme.md) > [New Features and Tools in MongoDB 4.0](./new-in-4.0.md)
 
+Units | Topics
+--- | ---
+[Chapter 1: Replica Set Transactions](#chapter-1--replica-set-transactions) | Replica Set Transactions: a general overview on transaction support, detailed configuration options, and use cases.
+[Chapter 2: Sharding Improvements](#chapter-2--sharding-improvements) | Sharding Improvements: updates to sharding metadata configuration commands, routing and balancing improvements, and more detailed logging information on mongos
+[Chapter 3: Misc Server Improvements](#chapter-3-misc-server-improvements) | Security and Profiling Miscellaneous: SCRAM-SHA-256, TLS 1.2, ChangeStreams improvements, and better profiling facilities.
+[Chapter 4: Aggregation Framework Improvements](#chapter-4-aggregation-framework-improvements) | Aggregation Framework Improvements: new type conversion expressions with syntactic sugar operators.
+[Chapter 5: MongoDB Compass](#chapter-5-mongodb-compass) | MongoDB Compass new features and functionality: aggregation pipeline builder, export to language, JSON Schema validation builder.
+[Chapter 6: ODBC Driver for BI Connector](#chapter-6-odbc-driver-for-bi-connector) | BI Connector: New ODBC driver and improved installation & configuration.
+[Chapter 7: Atlas](#chapter-7-atlas) | MongoDB Atlas features from the last 6 months: cross region clusters, multi-region writes, data explorer, and live migration.
+[Chapter 8: MongoDB Upgrade and Downgrade](#chapter-8-mongodb-upgrade-and-downgrade) | MongoDB 4.0 Upgrade Tutorial: the steps necessary to correctly upgrade to MongoDB 4.0 and how to downgrade
+[Chapter 9: Ops Manager 4.0](#chapter-9-ops-manager-40) | MongoDB Ops Manager 4.0 Kubernetes integration
+
 ## Chapter 1 : Replica Set Transactions
 
 ### Introduction to Replica Set Transactions
@@ -278,3 +290,108 @@ Main considerations when Upgrading :
     - `$dateToString` option changes
 
 To upgrade to 4.0, first upgrade to `MongoDB 3.6` first.
+
+## Chapter 9: Ops Manager 4.0
+
+### Ops Manager Kubernetes Integration - Introduction
+
+Kubernetes (k8S) = open source platform for managing containerized workloads and services
+
+### Ops Manager Kubernetes Integration - Setup
+
+Dependencies
+
+- [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/)
+- [docker](https://docs.docker.com/install/)
+- [minikube](https://kubernetes.io/docs/tasks/tools/install-minikube/)
+- [helm](https://docs.helm.sh/using_helm/#installing-helm)
+
+Check required software dependencies
+
+```powershell
+virtualbox --help
+docker version
+kubectl version
+minikube version
+helm version
+```
+
+Startup minikube
+
+```powershell
+minikube start --memory="10000"
+minikube status
+eval $(minikube docker-env)
+docker images
+```
+
+### Kubernates Integration
+
+```bash
+kubectl create namespace mongodb
+kubectl config set-context $(kubectl config current-context) --namespace=mongodb
+kubectl get all
+
+# clone the repository
+git clone https://github.com/mongodb/mongodb-enterprise-kubernetes
+
+kubectl create serviceaccount --namespace kube-system tiller
+
+kubectl create clusterrolebinding tiller-cluster-rule --clusterrole=cluster-admin --serviceaccount=kube-system:tiller
+
+helm init --service-account tiller
+
+# look for the instructions on how to create a secret
+cat mongodb-enterprise-kubernetes/README.md
+
+kubectl create -f YOUR_SECRET.yml --namespace=mongodb
+
+helm install
+
+kubectl get all
+
+kubectl logs -f
+
+# download the simple test yaml configuration
+curl -OL https://raw.githubusercontent.com/jasonmimick/mongodb-openshift-dev-preview/master/simple-test-opsmanager-k8s/simple-test-opsmgr.yaml
+kubectl create -f simple-test-opsmgr.yaml
+
+kubectl get all
+
+ pod=$(kubectl get pods --selector=app=mongodb-opsmgr --output=jsonpath='{.items[0].metadata.name}')
+
+ echo $pod
+
+ kubectl exec -it $pod -c mongodb-opsmgr -- tail -f /mongodb-opsmgr-server/runtime/startup-mms.log
+```
+
+```bash
+kubectl get all
+
+# establish a bash shell within the container
+kubectl exec -it $pod -c mongodb-opsmgr -- /bin/bash
+
+ls /mongodb-opsmgr-server/runtime/
+cd /mongodb-opsmgr-server/runtime/
+cat operator-project-credenatials.yaml
+
+kubectl exec -it $pod -c mongodb-opsmgr -- cat /mongodb-opsmgr-server/runtime/operator-project-credenatials.yaml | kubectl create -f -
+
+kubectl get configmap
+
+# create replica set deployment using yaml file
+kubectl create -f m040-replica-set.yaml
+
+kubectl get all
+
+minikube ip
+
+kubectl get svc
+
+mongo mongodb://$(minikube ip):31529
+
+
+kubectl exec -it -c mongodb-opsmgr -- /bin/bash
+
+cd /mognodb-opsmgr/mongodb/bin
+```
