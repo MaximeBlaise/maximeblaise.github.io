@@ -30,6 +30,7 @@ Warning: Not all writes and read operations are non-locking operations. In this 
 To persist data, MongoDB uses disk. We can measure performance with IOPS (Input Output Per Second).
 
 The following table resumes the current storage capabilities :
+
 Type | IOPS
 --- | ---
 7200 rpm SATA | ~ 75 - 100
