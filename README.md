@@ -8,5 +8,6 @@ Here is an open-source wiki, to share some useful information.
 
 - [MongoDB](./mongodb/readme.md)
   - [New Features and Tools in MongoDB 4.0](./mongodb/new-in-4.0.md)
+  - [Performance](./mongodb/performance.md)
 - [VSTS](./vsts/readme.md)
   - [Read values from keyvault in a Release](./vsts/read-from-keyvault.md)
