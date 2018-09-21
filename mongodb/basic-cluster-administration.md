@@ -163,3 +163,38 @@ MongoDB JSON Limitations :
 - Documents are restricted to 16MB in size
 
 MongoDB use **BSON** (Binary JSON), which supports more Data types.
+
+### Configuration File
+
+Launch mongod with many configuration options:
+
+```powershell
+mongod --dbpath /data/db --logpath /data/log/mongod.log --fork --replSetName "M103" --keyFile /data/keyfile --bind_ip "127.0.0.1, 192.168.0.100" --sslMode requireSSL --sslCAFile "/etc/ssl/SSLCA.pem" --sslPEMKeyFile "/etc/ssl/ssl.pem"
+```
+
+Example configuration file, with the same configuration options as above:
+
+```yaml
+storage:
+  dbPath: "/data/db"
+systemLog:
+  path: "/data/log.mongod.log"
+  destination: "file"
+replication:
+  replSetName: M103
+net:
+  bindIp : "127.0.0.1, 192.168.0.10"
+ssl:
+  mode: "requireSSL"
+  PEMKeyFile: "/etc/ssl/ssl.pem"
+  CAFile: "/etc/ssl/SSLCA.pem"
+security:
+  keyFile: "/data/keyfile"
+processManagement:
+  fork : true
+```
+
+```powershell
+mongod --config "/etc/mongod.conf"
+mongod -f "/etc/mongod.conf"
+```
