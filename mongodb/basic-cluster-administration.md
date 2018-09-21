@@ -93,3 +93,27 @@ You can read more about the MongoDB server in the [daemon documentation](https:/
 High Availability & Failover (Primary/Secondary, Raft protocol)
 
 Sharded Clusters provide scalability
+
+### Data Structures
+
+Databases : top level containers
+
+```powershell
+db.createCollection()
+db.createUser()
+db.dropUser()
+db.runCommand()
+
+show dbs # show dabatases in mongod
+use newDB # use an existing database
+```
+
+Collections : like tables.
+If you run a query against a database/collection which not exist, MongoDB will create it for us.
+
+```powershell
+db.new_collection.insert( {a: 1} )
+show colletions # list collections in specific database
+```
+
+Indexes : special data structure. See [M201: MongoDB Performance](https://university.mongodb.com/courses/M201/about) in MongoDB University.
