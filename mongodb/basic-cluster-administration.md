@@ -74,3 +74,22 @@ Some useful command about Mongod :
 ```
 
 You can read more about the MongoDB server in the [daemon documentation](https://docs.mongodb.com/manual/reference/program/mongod).
+
+### MongoDB Architecture
+
+- MongoDB Query Language (MQL)
+- MongoDB Document Data Model
+  - namespaces
+  - indexes
+  - data structures
+  - replication mechanism : WriteConcerns | ReadConcerns
+- Storage Layer : **WiredTiger**, Encrypted, In-Memory, MMapV1
+  - system calls
+  - disk flush
+  - file structures
+  - compression
+- Security / Administration
+
+High Availability & Failover (Primary/Secondary, Raft protocol)
+
+Sharded Clusters provide scalability
