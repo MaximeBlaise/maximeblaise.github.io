@@ -117,3 +117,49 @@ show colletions # list collections in specific database
 ```
 
 Indexes : special data structure. See [M201: MongoDB Performance](https://university.mongodb.com/courses/M201/about) in MongoDB University.
+
+### MongoDB Documents
+
+Encode with JSON Format :
+
+- Human readable and writable
+- Machine parsable and generatable
+- Language independant
+
+```json
+{
+    "Firtname": "John",
+    "Lastname": "Doe",
+    "Age": 25
+}
+```
+
+Firstname (string) | Lastname (string) | Age (int)
+--- | --- | ---
+John | Doe | 25
+
+JSON supports documents in document, arrays, etc. :
+
+```json
+{
+    "Firtname": "John",
+    "Lastname": "Doe",
+    "Age": 25,
+    "Work": {
+        "Status": "Employed",
+        "Jobs": [
+            "TotalJobs": 1,
+            {
+                "Company": "MongoFarms",
+                "YearsWorked": 2
+            }
+        ]
+    }
+}
+```
+
+MongoDB JSON Limitations :
+
+- Documents are restricted to 16MB in size
+
+MongoDB use **BSON** (Binary JSON), which supports more Data types.
