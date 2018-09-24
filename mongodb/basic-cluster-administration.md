@@ -6,6 +6,7 @@ Units | Topics
 --- | ---
 [Chapter 0: Introduction](#chapter-0-introduction) | An overview of the course content.
 [Chapter 1: The Mongod](#chapter-1-the-mongod) | Standalone node configuration and setup
+[Chapter 2: Replication](#chapter-2-replication) | Basic replication concepts and replica set administration
 
 ## Chapter 0: Introduction
 
@@ -507,3 +508,5 @@ mongoexport --port 30000 --db applicationData --collection products -o products.
 # Use mongoimport to create a MongoDB collection from a JSON or CSV file:
 mongoimport --port 30000 products.json
 ```
+
+## Chapter 2: Replication
