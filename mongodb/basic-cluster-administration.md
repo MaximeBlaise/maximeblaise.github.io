@@ -260,3 +260,46 @@ db.<collection>.createIndex(
 # Introspect a Shell Helper:
 db.<collection>.createIndex
 ```
+
+### Logging Basics
+
+```powershell
+# Get the logging components:
+mongo admin --host 192.168.103.100:27000 -u m103-admin -p m103-pass --eval '
+  db.getLogComponents()
+'
+
+# Change the logging level:
+mongo admin --host 192.168.103.100:27000 -u m103-admin -p m103-pass --eval '
+  db.setLogLevel(0, "index")
+'
+
+# Tail the log file:
+tail -f /data/db/mongod.log
+
+# Update a document:
+mongo admin --host 192.168.103.100:27000 -u m103-admin -p m103-pass --eval '
+  db.products.update( { "sku" : 6902667 }, { $set : { "salePrice" : 39.99} } )
+'
+
+# Look for instructions in the log file with grep:
+grep -R 'update' /data/db/mongod.log
+```
+
+Log Verbosity Levels :
+
+N° | Description
+--- | ---
+-1 | Inherit from parent
+0 | Default Verbosity, to include Informational messages
+1 - 5 | Increases the verbosity level to include Debug messages
+
+Log Message Severity Levels :
+
+Level | Description
+--- | ---
+F | Fatal
+E | Error
+W | Warning
+I | Informational (Verbosity Level 0)
+D | Debug (Verbosity Level 1-5)
