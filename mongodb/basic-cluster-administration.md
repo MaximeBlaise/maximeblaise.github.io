@@ -345,3 +345,55 @@ processManagement:
 operationProfiling:
   slowOpThresholdMs: 50
 ```
+
+### Basic Security
+
+Authentication | Authorization
+--- | ---
+Verify the **Identity** of a user | Verifies the **privileges** of a user
+Answers the question : **Who are you ?** | Answers the question : **What do you have access to?**
+
+Authentication Mechanisms :
+
+- SCRAM: Salted Challenge Response Authentication Mechanism
+- X.509
+- LDAP: Enterprise only (AD)
+- Kerberos : Entreprise only
+
+There is also cluster authentication.
+Always configure at least SCRAM. To learn more about Security, please visit course M310 at mongoDB University
+
+Role Bases Access Protocol :
+
+- Database administrator: Create user/index
+- Developer: Write/Read data
+- Data scientist: Read data
+
+```powershell
+# Print configuration file:
+cat /etc/mongod.conf # show security.authorization: enabled
+
+# Launch standalone mongod:
+mongod -f /etc/mongod.conf
+
+# Connect to mongod:
+mongo --host 127.0.0.1:27017
+
+# Create new user with the root role (also, named root):
+use admin
+db.createUser({
+  user: "root",
+  pwd: "root123",
+  roles : [ "root" ]
+})
+
+# Connect to mongod and authenticate as root:
+mongo --username root --password root123 --authenticationDatabase admin
+
+# Run DB stats:
+db.stats()
+
+# Shutdown the server:
+use admin
+db.shutdownServer()
+```
