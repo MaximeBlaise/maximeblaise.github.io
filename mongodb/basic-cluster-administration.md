@@ -215,10 +215,12 @@ Warning: not readable for human. Not modify it yourself
 
 Basic Helper Groups :
 
-- db.<method>(): interact with databases
-  - db.<collection>.<method>()
-- rs.<method>(): control replica sets
-- sg.<method>(): control sharded cluster
+```powershell
+db.<method>() # interact with databases
+  db.<collection>.<method>()
+rs.<method>() # control replica sets
+sg.<method>() # control sharded cluster
+```
 
 Basic Commands
 
