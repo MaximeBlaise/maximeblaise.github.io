@@ -303,3 +303,45 @@ E | Error
 W | Warning
 I | Informational (Verbosity Level 0)
 D | Debug (Verbosity Level 1-5)
+
+### Profiling the Database
+
+Events captured by the profiler :
+
+- CRUD
+- Administrative operations
+- Configuration operations
+
+Level | Description
+--- | ---
+0 | The profiler is off and does not collect any data. (Default)
+1 | The profiler collects data for operations that take longer than the value of slowms.
+2 | The profiter collects data for all operations
+
+```powershell
+db.getProfilingLevel()
+db.setProfilingLevel(1)
+show collections        #  show system.profile collection
+
+db.setProfilingLevel( 1, { slowms: 0 } )
+db.new_collection.insert( { "a":1 } )
+db.system.profile.find().pretty()  # show lots of information
+```
+
+Exemple of configuration file :
+
+```yaml
+storage:
+  dbPath: "/var/mongodb/db/"
+systemLog:
+  path: "/var/mongodb/db/mongod.log"
+  destination: "file"
+  logAppend: true
+net:
+  bindIp : "localhost,192.168.103.100"
+  port: 27000
+processManagement:
+  fork : true
+operationProfiling:
+  slowOpThresholdMs: 50
+```
