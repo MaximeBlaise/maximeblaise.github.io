@@ -198,3 +198,15 @@ processManagement:
 mongod --config "/etc/mongod.conf"
 mongod -f "/etc/mongod.conf"
 ```
+
+### File Structure
+
+```powershell
+ls -l /data/db                  # list --dbpath directory
+ls -l /data/db/diagnostic.data  # list diagnostics data directory
+ls -l /data/db/journal          # list journal directory
+ls -l /tmp/mongodb-27017.sock   # list socket file
+```
+
+Each collection and index has its own `.wt` file.
+Warning: not readable for human. Not modify it yourself
