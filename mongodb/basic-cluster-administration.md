@@ -554,3 +554,79 @@ Arbiter:
 There is a failover mechanism in place: if we lose primary node, we cannot write anymore. Which of the secondaries could become the new primary ?
 
 Replica Set: Up to 50 Members, 7 voting Members
+
+### Setting Up a Replica Set
+
+Read more about [VI commands](http://www.lagmonster.org/docs/vi.html).
+
+The configuration file for the first node (nodeN.conf):
+
+```yaml
+storage:
+  dbPath: /var/mongodb/db/nodeN
+net:
+  bindIp: 192.168.103.100,localhost
+  port: 2701N
+security:
+  authorization: enabled
+  keyFile: /var/mongodb/pki/m103-keyfile
+systemLog:
+  destination: file
+  path: /var/mongodb/db/nodeN/mongod.log
+  logAppend: true
+processManagement:
+  fork: true
+replication:
+  replSetName: m103-example
+```
+
+```powershell
+# Creating the keyfile and setting permissions on it:
+sudo mkdir -p /var/mongodb/pki/
+sudo chown vagrant:vagrant /var/mongodb/pki/
+openssl rand -base64 741 > /var/mongodb/pki/m103-keyfile
+chmod 400 /var/mongodb/pki/m103-keyfile
+
+# Creating the dbpath for nodeN:
+mkdir -p /var/mongodb/db/nodeN
+
+# Starting a mongod with nodeN.conf:
+mongod -f nodeN.conf
+
+# Connecting to node1:
+mongo --port 27011
+
+# Initiating the replica set:
+rs.initiate()
+
+# Creating a user:
+use admin
+db.createUser({
+  user: "m103-admin",
+  pwd: "m103-pass",
+  roles: [
+    {role: "root", db: "admin"}
+  ]
+})
+
+# Exiting out of the Mongo shell and connecting to the entire replica set:
+exit
+mongo --host "m103-example/192.168.103.100:27011" -u "m103-admin"
+-p "m103-pass" --authenticationDatabase "admin"
+
+# Getting replica set status:
+rs.status()
+
+# Adding other members to replica set:
+rs.add("m103.mongodb.university:27012")
+rs.add("m103.mongodb.university:27013")
+
+# Getting an overview of the replica set topology:
+rs.isMaster()
+
+# Stepping down the current primary:
+rs.stepDown()
+
+# Checking replica set overview after election:
+rs.isMaster()
+```
