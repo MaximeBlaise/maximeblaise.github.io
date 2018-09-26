@@ -630,3 +630,34 @@ rs.stepDown()
 # Checking replica set overview after election:
 rs.isMaster()
 ```
+
+### Replication Configuration Document
+
+- JSON Object that defines the configuration options of our replica set
+- Can be configured manually from the shell
+- There are set of mongo shell replication helper methods that make it easier to manage
+
+```powershell
+rs.add
+rs.initiate
+rs.remove
+rs.reconfig
+rs.config
+```
+
+```json
+{
+  _id: "string",
+  version: "int",
+  members: [
+    {
+      _id: "int",
+      host: "string",
+      arbiterOnly: "boolean",
+      priority: "number",
+      slaveDelay: "int" // in seconds
+    },
+    ...
+  ]
+}
+```
