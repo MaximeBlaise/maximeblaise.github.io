@@ -861,3 +861,20 @@ Write Concerns Commands :
 - update
 - delete
 - findAndModify
+
+### Read Concerns
+
+Read concern provides a way of dealing with the issue of data durability during a failover event.
+
+```powershell
+db.products.find(
+  { "name": "things", ... }
+).readConcern( level: "majority" )
+```
+
+Levels | Feature | Description
+--- | --- | ---
+local (default) | Latest & Fast | most recent data in the cluster
+available (sharded clusters) | Latest & Fast | default with read from secondaries nodes
+majority | Safe & Fast | returns data acknowledged as written to a majority of replica set members
+linearizable | Safe & Latest | returns data from write operations with write concern of majority
