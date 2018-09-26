@@ -538,3 +538,19 @@ Binary Replication | Statement-Based Replication
 The secondary node will receieve a copy of binary log<br/>But, operating system must be consistent across the entire replica set | Use oplog<br/>Regardless of operating system
 
 Idempotence: we can execute oplog several times, the data have to be at the same state.
+
+### MongoDB Replica Set
+
+Read more about the [Simple Raft Protocol](http://thesecretlivesofdata.com/raft/) and the [Raft Consensus Algorithm](https://raft.github.io/).
+
+The secondaries will get data from primary, through an asynchronous replication mechanism.
+
+Arbiter:
+
+- holds no data
+- can vote in an election
+- cannot becone primary
+
+There is a failover mechanism in place: if we lose primary node, we cannot write anymore. Which of the secondaries could become the new primary ?
+
+Replica Set: Up to 50 Members, 7 voting Members
