@@ -681,3 +681,67 @@ rs.printReplicationInfo()
   # Only returns oplog data relative to current node
   # Contains timestamps for first and last oplog events
 ```
+
+### Local DB
+
+```powershell
+# Making a data directory and launching a mongod process for a standalone node:
+mkdir allbymyselfdb
+mongod --dbpath allbymyselfdb
+
+# All MongoDB instances start with two default databases, admin and local:
+mongo
+show dbs
+
+# Display collections from the local database (this displays more collections from a replica set than from a standalone node):
+use local
+show collections
+
+# Querying the oplog after connected to a replica set:
+use local
+db.oplog.rs.find()
+```
+
+```powershell
+# Storing oplog stats as a variable called stats:
+var stats = db.oplog.rs.stats()
+
+# Verifying that this collection is capped (it will grow to a pre-configured size before it starts to overwrite the oldest entries with newer ones):
+stats.capped
+
+# Getting current size of the oplog:
+stats.size
+
+# Getting size limit of the oplog:
+stats.maxSize
+
+# Getting current oplog data (including first and last event times, and configured oplog size):
+rs.printReplicationInfo()
+```
+
+```powershell
+# Create new namespace m103.messages:
+use m103
+db.createCollection('messages')
+
+# Query the oplog, filtering out the heartbeats ("periodic noop") and only returning the latest entry:
+use local
+db.oplog.rs.find( { "o.msg": { $ne: "periodic noop" } } ).sort( { $natural: -1 } ).limit(1).pretty()
+
+# Inserting 100 different documents:
+use m103
+for ( i=0; i< 100; i++) { db.messages.insert( { 'msg': 'not yet', _id: i } ) }
+db.messages.count()
+
+# Querying the oplog to find all operations related to m103.messages:
+use local
+db.oplog.rs.find({"ns": "m103.messages"}).sort({$natural: -1})
+
+# Illustrating that one update statement may generate many entries in the oplog:
+use m103
+db.messages.updateMany( {}, { $set: { author: 'norberto' } } )
+use local
+db.oplog.rs.find( { "ns": "m103.messages" } ).sort( { $natural: -1 } )
+
+# Remember, even though you can write data to the local db, you should not.
+```
