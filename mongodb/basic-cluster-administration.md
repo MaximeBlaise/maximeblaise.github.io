@@ -878,3 +878,27 @@ local (default) | Latest & Fast | most recent data in the cluster
 available (sharded clusters) | Latest & Fast | default with read from secondaries nodes
 majority | Safe & Fast | returns data acknowledged as written to a majority of replica set members
 linearizable | Safe & Latest | returns data from write operations with write concern of majority
+
+### Read Preferences
+
+```powershell
+db.products.find(
+  { "name": "Mongo 101", ... }
+).readPref("secondaryPreferred")
+```
+
+Read Preference Modes
+
+- primary (default)
+- primaryPreferred
+- secondary
+- secondaryPreferred
+- nearest (least network latency)
+
+Scenario | Tradeoff | Read Preference
+--- | --- | ---
+Read from the primary only | Secondaries are for availability only | primary (default)
+If the primary is unavailable, read from a secondary | Possible to read stale data | primaryPreferred
+Read from the secondary members only | Possible to read stale data | secondary
+If all secondaries are unavailable, read from the primary | Possible to read stale data | secondaryPreferred
+Application's read from the geographically closest member | Possible to read stale data | nearest
