@@ -840,3 +840,24 @@ rs.stepDown()
 # Checking the topology of our set after the election:
 rs.isMaster()
 ```
+
+### Write Concerns
+
+Levels | Description
+--- | ---
+0 | Don't wait for acknowledgement
+1 (default) | Wait for acknowledgement from the primary only
+>= 2 | Wait for acknowledgement from the primary and one or more secondaries
+`majority` | wait for acknowledgement from a majority of replica set members
+
+Write Concerns Options :
+
+- `wtimeout`: (int) the time to wait for the requested write concern before making the operation as failed
+- `j`: (boolean) requires the node to commit the write operation to the journal before returning an acknowledgement
+
+Write Concerns Commands :
+
+- insert
+- update
+- delete
+- findAndModify
