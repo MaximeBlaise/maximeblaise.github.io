@@ -510,3 +510,31 @@ mongoimport --port 30000 products.json
 ```
 
 ## Chapter 2: Replication
+
+### What is Replication
+
+MongoDB uses asynchronous, statement-bases replication.
+
+Replication = Maintain multiple copies of your data.
+Failover = if primary node is down, one of the secondaries can play the primary role.
+
+For example we insert
+
+```powershell
+db.students.insert(
+  { "name": "Matt Javaly", "grade", "A" }
+)
+```
+
+Memory Address | Data to be written
+--- | ---
+0x100203 | "Matt Javaly"
+0x3a123f | "A"
+
+Two types of replication :
+
+Binary Replication | Statement-Based Replication
+--- | ---
+The secondary node will receieve a copy of binary log<br/>But, operating system must be consistent across the entire replica set | Use oplog<br/>Regardless of operating system
+
+Idempotence: we can execute oplog several times, the data have to be at the same state.
