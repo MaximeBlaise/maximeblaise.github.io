@@ -661,3 +661,23 @@ rs.config
   ]
 }
 ```
+
+### Replication Commands
+
+```powershell
+rs.status()
+  # Reports health on replica set nodes
+  # Uses data from heartbeats
+
+rs.isMaster()
+  # Describes a nodes's role in the replica set
+  # Shorter output than rs.status()
+
+db.serverStatus()['repl']
+  # Section of the db.serverStatus() output
+  # Similar to the output of rs.isMaster()
+
+rs.printReplicationInfo()
+  # Only returns oplog data relative to current node
+  # Contains timestamps for first and last oplog events
+```
