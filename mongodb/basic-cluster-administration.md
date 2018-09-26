@@ -611,8 +611,7 @@ db.createUser({
 
 # Exiting out of the Mongo shell and connecting to the entire replica set:
 exit
-mongo --host "m103-example/192.168.103.100:27011" -u "m103-admin"
--p "m103-pass" --authenticationDatabase "admin"
+mongo --host "m103-example/192.168.103.100:27011" -u "m103-admin" -p "m103-pass" --authenticationDatabase "admin"
 
 # Getting replica set status:
 rs.status()
@@ -744,4 +743,35 @@ use local
 db.oplog.rs.find( { "ns": "m103.messages" } ).sort( { $natural: -1 } )
 
 # Remember, even though you can write data to the local db, you should not.
+```
+
+### Reconfiguring a Running Replica Set
+
+Create node4.conf and arbiter.conf from chapter above "Setting Up a Replica Set".
+
+```powershell
+# Starting up mongod processes for our fourth node and arbiter:
+mongod -f node4.conf
+mongod -f arbiter.conf
+
+# From the Mongo shell of the replica set, adding the new secondary and the new arbiter:
+rs.add("m103.mongodb.university:27014")
+rs.addArb("m103.mongodb.university:28000")
+
+# Checking replica set makeup after adding two new nodes:
+rs.isMaster()
+
+# Removing the arbiter from our replica set:
+rs.remove("m103.mongodb.university:28000")
+
+# Assigning the current configuration to a shell variable we can edit, in order to reconfigure the replica set:
+cfg = rs.conf()
+
+# Editing our new variable cfg to change topology - specifically, by modifying cfg.members:
+cfg.members[3].votes = 0
+cfg.members[3].hidden = true
+cfg.members[3].priority = 0
+
+# Updating our replica set to use the new configuration cfg:
+rs.reconfig(cfg)
 ```
