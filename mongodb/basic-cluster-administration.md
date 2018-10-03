@@ -7,6 +7,7 @@ Units | Topics
 [Chapter 0: Introduction](#chapter-0-introduction) | An overview of the course content.
 [Chapter 1: The Mongod](#chapter-1-the-mongod) | Standalone node configuration and setup
 [Chapter 2: Replication](#chapter-2-replication) | Basic replication concepts and replica set administration
+[Chapter 3: Sharding](#chapter-3-sharding) | Sharded cluster creation and management
 
 ## Chapter 0: Introduction
 
@@ -902,3 +903,222 @@ If the primary is unavailable, read from a secondary | Possible to read stale da
 Read from the secondary members only | Possible to read stale data | secondary
 If all secondaries are unavailable, read from the primary | Possible to read stale data | secondaryPreferred
 Application's read from the geographically closest member | Possible to read stale data | nearest
+
+## Chapter 3: Sharding
+
+### What is sharding
+
+It's possible to store all mongo in the same server.
+
+**Vertical Scaling**
+If the performance is not enough, one possibility is just to make the machine better (more RAM, etc.)
+This solution can become very expensive.
+
+**Horizontal Scaling**
+Add more machines and then distribute the dataset
+
+The way the data is distributed in MongoDB is called `Sharding`.
+
+_Mongos_: the process which route query into the right Shard. It uses metadata and Config Server.
+
+### When to Shard
+
+Check first if it is still economically viable to vertical scale.
+
+Warning when increasing disk spaces. It takes more time to backup & restore.
+Good practice: between 2TB and 5TB / server
+
+If Aggregation pipelines become too slow, it's time to Shard.
+Check M121 - MongoDB Aggregation Course
+
+Zone Sharding allow us to easily distribute data that needs to be co-located.
+
+### Sharding Architecture
+
+We can add any number of Shards.
+Clients don't communicate directly with the shard => mongos (route process).
+
+Example of Sharded cluster (with Football players) metadata :
+
+Shard | Data
+--- | ---
+1 | A-J
+2 | K-Q
+3 | R-Z
+
+Primary Shard.
+The mongos is responsible of Aggregation Commands (SHARD_MERGE).
+
+### Setting Up a Sharded Cluster
+
+Configuration file for first config server csrs_N.conf:
+
+```yaml
+sharding:
+  clusterRole: configsvr
+replication:
+  replSetName: m103-csrs
+security:
+  keyFile: /var/mongodb/pki/m103-keyfile
+net:
+  bindIp: localhost,192.168.103.100
+  port: 2600N
+systemLog:
+  destination: file
+  path: /var/mongodb/db/csrsN.log
+  logAppend: true
+processManagement:
+  fork: true
+storage:
+  dbPath: /var/mongodb/db/csrsN
+```
+
+mongos.conf
+
+```yaml
+sharding:
+  configDB: m103-csrs/192.168.103.100:26001,192.168.103.100:26002,192.168.103.100:26003
+security:
+  keyFile: /var/mongodb/pki/m103-keyfile
+net:
+  bindIp: localhost,192.168.103.100
+  port: 26000
+systemLog:
+  destination: file
+  path: /var/mongodb/db/mongos.log
+  logAppend: true
+processManagement:
+  fork: true
+```
+
+Commands about config servers :
+
+```powershell
+mongod -f csrs_1.conf
+mongo --port 26001
+rs.initiate()
+
+# Create super user on CSRS
+use admin
+db.createUser({
+  user: "m103-admin",
+  pwd: "m103-pass",
+  roles: [
+    {role: "root", db: "admin"}
+  ]
+})
+
+# Authenticating as the super user:
+db.auth("m103-admin", "m103-pass")
+
+# Add the second and third node to the CSRS:
+rs.add("192.168.103.100:26002")
+rs.add("192.168.103.100:26003")
+
+mongos -f mongos.conf
+mongo --port 26000 -u "m103-admin" -p "m103-pass" --authenticationDatabase "admin"
+# Check sharding status:
+sh.status()
+```
+
+Updated configuration for node1.conf:
+
+```yaml
+sharding:
+  clusterRole: shardsvr
+storage:
+  dbPath: /var/mongodb/db/nodeN
+  wiredTiger:
+    engineConfig:
+      cacheSizeGB: .1
+net:
+  bindIp: 192.168.103.100,localhost
+  port: 2701N
+security:
+  keyFile: /var/mongodb/pki/m103-keyfile
+systemLog:
+  destination: file
+  path: /var/mongodb/db/nodeN/mongod.log
+  logAppend: true
+processManagement:
+  fork: true
+replication:
+  replSetName: m103-repl
+```
+
+```powershell
+# Connecting directly to secondary node (note that if an election has taken place in your replica set, the specified node may have become primary):
+mongo --port 27012 -u "m103-admin" -p "m103-pass" --authenticationDatabase "admin"
+use admin
+db.shutdownServer()
+mongod -f node2.conf
+
+# Stepping down current primary:
+mongo --port 27011 -u "m103-admin" -p "m103-pass" --authenticationDatabase "admin"
+rs.stepDown()
+
+# Adding new shard to cluster from mongos:
+sh.addShard("m103-repl/192.168.103.100:27012")
+```
+
+### Config DB
+
+Never write data into `config` database.
+
+```powershell
+use config
+db.databases.find().pretty()    # Query config.databases
+db.collections.find().pretty()  # Query config.collections
+db.shards.find().pretty()       # Query config.shards
+db.chunks.find().pretty()       # Query config.chunks
+db.mongos.find().pretty()       # Query config.mongos
+```
+
+### Shard Keys
+
+- Shard Key Fields mus tbe indexed
+  - Indexes must exist first before you can select the indexed fields for your shard key
+- Shard Keys are **immutable**
+  - You cannot change the shard key fields post-sharding
+  - You cannot change the values of the shard key fields post-sharding
+- Shard keys are **permanent**
+  - You cannot unshard a sharded collection
+
+```powershell
+use m103
+show collections
+sh.enableSharding("m103")
+db.products.createIndex( { "sku" : 1 } ) # Create an index on sku
+sh.shardCollection("m103.products", {"sku" : 1 } ) # Shard the products collection on sku
+sh.status() # Checking the status of the sharded cluster
+```
+
+### Picking a Good Shard Key
+
+The goal is a shard key whose values provides good write distribution
+
+- Cardinality
+  - High cardinality = many possible unique shard key values
+- Frequency
+  - Low Frequency = Low repetition of a given unique shard key value
+- Monotonic Change
+  - Timestamp for exemple always increase, always go to the last shard cluster.
+
+Read Isolation : direct read into the right Shard.
+
+### Hashed Shard Keys
+
+It's possible to have Hashed Shard Keys :
+
+- Queries on ranges of shard key values are more likely to be scatter-gather
+- Cannot support geographically isolated read operations using zoned sharding
+- Hashed Index must be on a single non-array field
+- Hashed Indexes don't support fast sorting
+
+Sharding using a Hashed Shard Key :
+
+```powershell
+sh.enableSharding("database")
+db.collection.createIndex("field": "hashed")
+sh.shardCollection( "database.collection", { "shard key field", "hashed" } )
+```
