@@ -1122,3 +1122,30 @@ sh.enableSharding("database")
 db.collection.createIndex("field": "hashed")
 sh.shardCollection( "database.collection", { "shard key field", "hashed" } )
 ```
+
+### Chunks
+
+Chanks are logical groups of document.
+
+```powershell
+# Find one document from the chunks collection:
+use config
+db.chunks.findOne()
+
+# Change the chunk size:
+use config
+db.settings.save({_id: "chunksize", value: 2})
+
+# Check the status of the sharded cluster:
+sh.status()
+
+# Import a new dataset (note that this dataset does not exist on the course VM):
+mongoimport -d m103 -c products products.part2.json
+```
+
+Jombo Chunks
+
+- Larger than the defined chunk size
+- Cannot move jumbo chunks
+  - One marked as jombo the balancer skips these chunks and aboids trying to move them
+- In some cases these will not be able to be split
