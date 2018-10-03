@@ -1149,3 +1149,47 @@ Jombo Chunks
 - Cannot move jumbo chunks
   - One marked as jombo the balancer skips these chunks and aboids trying to move them
 - In some cases these will not be able to be split
+
+### Balancing
+
+Balancers can split Chunks if needed.
+
+In the mongos :
+
+```powershell
+sh.startBalancer(timeout, interval) # Start the balancer
+sh.stopBalancer(timeout, interval) # Stop the balancer
+sh.setBalancerState(boolean) # Enable/disable the balancer
+```
+
+### Queries in a Sharded Cluster
+
+- **mongos** handles all queries in the cluster
+- **mongos** builds a list of shards to target a query
+- **mongos** merges the results from each shard
+- **mongos** supports standard query modifies like `sort`, `limit` and `skip`.
+
+`sort()`: the mongos pushes the sort to each shard and merge-sorts the results
+`limit()`: the mongos passes the limit to each targeted shard, then re-applies the limit to be merged set of results
+`skip()`: the mongos performs the skip against the merged set of results
+
+### Routed Queries vs Scatter Gather
+
+Shard Key : `{ "sku": 1, "type": 1, "name": 1 }`
+
+```powershell
+# Targetable queries :
+db.products.find( { "sku": "..." } )
+db.products.find( { "sku": "...", "type": "..." } )
+db.products.find( { "sku": "...", "type": "...", "name": "..." } )
+
+# Scatter-gather queries :
+db.products.find( { "type": "..." } )
+db.products.find( { "name": "..." } )
+
+# Routed query with explain() output:
+db.products.find({"sku" : 1000000749 }).explain()
+
+# Scatter gather query with explain() output:
+db.products.find( { "name" : "Gods And Heroes: Rome Rising - Windows [Digital Download]" } ).explain()
+```
