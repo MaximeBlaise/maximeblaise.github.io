@@ -6,6 +6,7 @@ Units | Topics
 --- | ---
 [Chapter 0: Introduction](#chapter-0-introduction) | Course logistics, requirements for environment setup, and application architecture.
 [Chapter 1: Driver Setup](#chapter-1-driver-setup) | Database client configuration, basic reads.
+[Chapter 2: User-Facing Backend](#chapter-2-user-facing-backend) | Basic aggregation, updates, deletes, and joins.
 
 ## Chapter 0: Introduction
 
@@ -108,4 +109,139 @@ print(dumps(cursor, indent=2))
 
 cursor = movies.find( { "cast": "Salma Hayek" }, { "title": 1, "_id": 0 } )
 print(dumps(cursor, indent=2))
+```
+
+## Chapter 2: User-Facing Backend
+
+### Cursor Methods and Aggregation Equivalents
+
+#### Limiting
+
+You can limit the number of documents returned :
+
+```python
+limited_cursor = movies.find(
+    { "directors", "Sam Raimi" },
+    { "_id": 0, "title": 1, "cast": 1 }
+).limit(2)
+
+print(dumps(limited_cursor, indent=2))
+```
+
+The same things by using aggregation framework :
+
+```python
+pipeline = [
+    { "$match": { "directors", "Sam Raimi" } },
+    { "$project": { "_id": 0, "title": 1, "cast": 1 } },
+    { "$limit": 2 }
+]
+
+limited_aggregation = movies.aggregate( pipeline )
+
+print(dumps(limited_aggregation, indent=2))
+```
+
+#### Sorting
+
+```python
+from pymongo import DESCENDING, ASCENDING
+
+sorted_cursor = movies.find(
+    { "directors", "Sam Raimi" },
+    { "_id": 0, "year": 1, "title": 1, "cast": 1 }
+).sort("year", ASCENDING)
+
+print(dumps(sorted_cursor, indent=2))
+```
+
+The same things by using aggregation framework :
+
+```python
+pipeline = [
+    { "$match": { "directors", "Sam Raimi" } },
+    { "$project": { "_id": 0, "year": 1, "title": 1, "cast": 1 } },
+    { "$sort": { "year", ASCENDING } }
+]
+
+sorted_cursor = movies.aggregate( pipeline )
+
+print(dumps(sorted_cursor, indent=2))
+```
+
+You have the possibility to sort with several keys :
+
+```python
+from pymongo import DESCENDING, ASCENDING
+
+sorted_cursor = movies.find(
+    { "directors", "Sam Raimi" },
+    { "_id": 0, "year": 1, "title": 1, "cast": 1 }
+).sort([("year", ASCENDING), ("title", ASCENDING)])
+
+print(dumps(sorted_cursor, indent=2))
+```
+
+#### Skipping
+
+```python
+from pymongo import DESCENDING, ASCENDING
+
+skipped_cursor = movies.find(
+    { "directors", "Sam Raimi" },
+    { "_id": 0, "year": 1, "title": 1, "cast": 1 }
+).sort("year", ASCENDING).skip(10)
+
+print(dumps(skipped_cursor, indent=2))
+```
+
+The same things by using aggregation framework :
+
+```python
+pipeline = [
+    { "$match": { "directors", "Sam Raimi" } },
+    { "$project": { "_id": 0, "year": 1, "title": 1, "cast": 1 } },
+    { "$sort": { "year", ASCENDING } },
+    { "$skip": 10 }
+]
+
+sorted_skipped_cursor = movies.aggregate( pipeline )
+
+print(dumps(sorted_skipped_cursor, indent=2))
+```
+
+### Basic Aggragation
+
+To learn more about the Aggregation Framework, check out [M121: The MongoDB Aggregation Framework](https://university.mongodb.com/courses/M121/about).
+
+The Aggregation Pipeline in this lesson was produced using [MongoDB Compass](https://www.mongodb.com/products/compass).
+
+Using Compass' [Aggregation Pipeline Builder](https://docs.mongodb.com/compass/master/aggregation-pipeline-builder/) feature, we can easily create, delete and rearrange the stages in a pipeline, and evaluate the output documents in real time. Then we can produce a version of that pipeline in Python, Java, C# or Node.js, using Compass' [Export-to-Language](https://docs.mongodb.com/compass/master/export-pipeline-to-language) feature.
+
+- Aggregation is a pipeline
+  - Pipelines are composed of stages, broad units of work.
+  - Within stages, expressions are used to specify individual units of work
+- Expressions are functions
+
+Example with `add` function in different languages :
+
+```python
+def add(a, b):
+    return a + b
+```
+
+```java
+static <T extends Number> double add(T a, T b) {
+    return a.doubleValue() + b.doubleValue();
+}
+```
+
+```js
+function add(a, b) {
+    return a + b
+}
+```
+
+```json
+{ "$add": ["$a", "$b"] }
 ```
