@@ -7,6 +7,7 @@ Units | Topics
 [Chapter 0: Introduction](#chapter-0-introduction) | Course logistics, requirements for environment setup, and application architecture.
 [Chapter 1: Driver Setup](#chapter-1-driver-setup) | Database client configuration, basic reads.
 [Chapter 2: User-Facing Backend](#chapter-2-user-facing-backend) | Basic aggregation, updates, deletes, and joins.
+[Chapter 3: Admin Backend](#chapter-3-admin-backend) | Read concerns and bulk operations.
 
 ## Chapter 0: Introduction
 
@@ -377,3 +378,26 @@ print(u_r.acknowledged, u_r..matched_count, u_r.modified_count, u_r.upserted_id)
 
 `delete_one` is like `find_one`
 `delete_many` deletes all documents that match the supplied predicate.
+
+## Chapter 3: Admin Backend
+
+### Read Concerns
+
+- Represent different levels of "read isolation"
+- Can be used to specify a consistent view of the database
+
+`local`: default MongoDB Read Concern. Read data when if it's not replicated yet.
+`majority`: Verify that the data read is replicated to a majority of nodes in the set.
+
+### Bulk Writes
+
+Ordered Bulk Write (default)
+
+- The default setting for bulk writes in MongoDB
+- Executes writes sequentially
+  - Will end execution after first write failure
+
+Unordered Bulk Write
+
+- Has to be specified with the flag: `{ ordered: false }`
+- Executes writes in parallel
