@@ -444,3 +444,16 @@ except errors.DuplicateKeyError:
     truck_id = doc["truck_id"]
     print(f"Truck #{truck_id} is currently performing a shipment. Please select another truck.")
 ```
+
+### Principle of Least Privilege
+
+Every program and every priviledged user of the system shoud operate using the least amount of privilege necessary to complete the job.
+
+ - Jerome Saltzer, Communications of the ACM
+
+### Change Streams
+
+- Report changes at the collection level
+- Accept pipelines to transform change events
+
+`watch` method.
