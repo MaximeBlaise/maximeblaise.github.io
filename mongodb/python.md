@@ -412,3 +412,14 @@ Connection pooling helps **reduce the overhead** of creating database connection
 Default size of 100.
 
 [Documentation here](https://api.mongodb.com/python/current/api/pymongo/mongo_client.html)
+
+### Robust Client Application
+
+Always use connection pooling
+Always specify a `wtimeout` with majority writes.
+
+```json
+{ w: "majority", wtimeout: 5000 }
+```
+
+Always configure for and handle `serverSelectionTimeout` errors.
