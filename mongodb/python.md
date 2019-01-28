@@ -423,3 +423,24 @@ Always specify a `wtimeout` with majority writes.
 ```
 
 Always configure for and handle `serverSelectionTimeout` errors.
+
+### Writes with Error Handling
+
+```python
+# Initialisation
+from pymongo import MongoClient, errors
+uri = "<your_uri>"
+mc = MongoClient(uri)
+lessons = mc.lessons
+shipments = lessons.shipments
+
+shipments.find_one()
+shipments.create_index("truck_id", unique=True)
+
+try:
+    res = shipments.insert_one(doc)
+    print(res.inserted_id)
+except errors.DuplicateKeyError:
+    truck_id = doc["truck_id"]
+    print(f"Truck #{truck_id} is currently performing a shipment. Please select another truck.")
+```
