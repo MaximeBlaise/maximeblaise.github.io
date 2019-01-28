@@ -8,6 +8,7 @@ Units | Topics
 [Chapter 1: Driver Setup](#chapter-1-driver-setup) | Database client configuration, basic reads.
 [Chapter 2: User-Facing Backend](#chapter-2-user-facing-backend) | Basic aggregation, updates, deletes, and joins.
 [Chapter 3: Admin Backend](#chapter-3-admin-backend) | Read concerns and bulk operations.
+[Chapter 4: Resiliency](#chapter-4-resiliency) | Connection pooling, error and timeout handling, and principle of least privilege.
 
 ## Chapter 0: Introduction
 
@@ -401,3 +402,13 @@ Unordered Bulk Write
 
 - Has to be specified with the flag: `{ ordered: false }`
 - Executes writes in parallel
+
+## Chapter 4: Resiliency
+
+### Connection Pooling
+
+Reusing database connection.
+Connection pooling helps **reduce the overhead** of creating database connections.
+Default size of 100.
+
+[Documentation here](https://api.mongodb.com/python/current/api/pymongo/mongo_client.html)
